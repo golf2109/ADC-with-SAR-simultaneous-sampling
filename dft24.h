@@ -35,7 +35,8 @@ int32_t	sum4_cos_g5[8]={0,0,0,0,0,0,0,0};
 
 
 extern	int32_t	Re1,Re2,Re5,Im1,Im2,Im5;
-
+int	adc_sample_number=0;	//циклический номер измерения (0...20)
+int	adc_sample_now=0;		//текущее значение обрабатываемого канала АЦП
 				
 uint32_t	Ag1[8],Ag2[8],Ag5[8];
 extern	uint32_t	angl1[8];

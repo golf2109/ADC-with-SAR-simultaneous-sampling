@@ -10,7 +10,8 @@ uint16_t	adc;
 extern	uint32_t	length_oscill;
 extern	uint32_t	begin_oscill;
 extern void Delay_mks(__IO uint32_t nTime);
-uint16_t adc_sample[8];
+uint32_t adc_sample[8];
+uint32_t adc_sample_1[8];
 extern	u8	oscill;
 extern	void			Write_to_FRAM (uint32_t AddrFRAM, uint16_t DataFRAM);
 void	adc_output_OZU(void);
@@ -186,88 +187,75 @@ GPIOA->BSRR=GPIO_BSRR_BS7;//RD
 */
 
 
-
 void	adc_output_FRAM(void)
 {
 	//GPIOB->ODR=0x0000;
-	GPIOA->BSRR=GPIO_BSRR_BS4;	//PA2-CONVST запуск преобразования
+	GPIOA->BSRR=GPIO_BSRR_BS3;	//PA2-CONVST запуск преобразования
 	Delay_mks(20);		//задержка перед окончанием преобразования EOC (3 мкс)
-	GPIOA->BSRR=GPIO_BSRR_BR1;	//PA0-CS ADC    выборка АЦП
+	GPIOA->BSRR=GPIO_BSRR_BR0;	//PA0-CS ADC    выборка АЦП
 		Delay_mks(1);
-	
-GPIOA->BSRR=GPIO_BSRR_BR7;//RD	
+
+
+GPIOA->BSRR=GPIO_BSRR_BR7;//RD
+		Delay_mks(1);	
 adc_sample[0]=GPIOB->IDR;					//0  чтение данных канала преобразования
 GPIOA->BSRR=GPIO_BSRR_BS7;//RD
-		Delay_mks(1);		
-GPIOA->BSRR=GPIO_BSRR_BR7;//RD
-Delay_mks(1);	
-GPIOA->BSRR=GPIO_BSRR_BS7;//RD
-Delay_mks(1);	
+		Delay_mks(1);	
+	
 	
 GPIOA->BSRR=GPIO_BSRR_BR7;//RD
-adc_sample[1]=GPIOB->IDR;	
+		Delay_mks(1);	
+adc_sample[1]=GPIOB->IDR;					//0  чтение данных канала преобразования
 GPIOA->BSRR=GPIO_BSRR_BS7;//RD
 		Delay_mks(1);		
+
+
 GPIOA->BSRR=GPIO_BSRR_BR7;//RD
-Delay_mks(1);	
+		Delay_mks(1);	
+adc_sample[2]=GPIOB->IDR;					//0  чтение данных канала преобразования
 GPIOA->BSRR=GPIO_BSRR_BS7;//RD
-Delay_mks(1);	
+		Delay_mks(1);			
 	
-GPIOA->BSRR=GPIO_BSRR_BR7;//RD
-adc_sample[2]=GPIOB->IDR;					//2
-GPIOA->BSRR=GPIO_BSRR_BS7;//RD
-		Delay_mks(1);		
-GPIOA->BSRR=GPIO_BSRR_BR7;//RD
-Delay_mks(1);	
-GPIOA->BSRR=GPIO_BSRR_BS7;//RD
-Delay_mks(1);			
 
 GPIOA->BSRR=GPIO_BSRR_BR7;//RD
-adc_sample[3]=GPIOB->IDR;					//3
+		Delay_mks(1);	
+adc_sample[3]=GPIOB->IDR;					//0  чтение данных канала преобразования
 GPIOA->BSRR=GPIO_BSRR_BS7;//RD
-		Delay_mks(1);		
-GPIOA->BSRR=GPIO_BSRR_BR7;//RD
-Delay_mks(1);	
-GPIOA->BSRR=GPIO_BSRR_BS7;//RD
-Delay_mks(1);			
-
-GPIOA->BSRR=GPIO_BSRR_BR7;//RD
-adc_sample[4]=GPIOB->IDR;					//4
-GPIOA->BSRR=GPIO_BSRR_BS7;//RD
-		Delay_mks(1);
-GPIOA->BSRR=GPIO_BSRR_BR7;//RD
-Delay_mks(1);	
-GPIOA->BSRR=GPIO_BSRR_BS7;//RD
-Delay_mks(1);			
-
-GPIOA->BSRR=GPIO_BSRR_BR7;//RD
-adc_sample[5]=GPIOB->IDR;					//5
-GPIOA->BSRR=GPIO_BSRR_BS7;//RD
-		Delay_mks(1);
-GPIOA->BSRR=GPIO_BSRR_BR7;//RD
-Delay_mks(1);	
-GPIOA->BSRR=GPIO_BSRR_BS7;//RD
-Delay_mks(1);	
-
-GPIOA->BSRR=GPIO_BSRR_BR7;//RD
-adc_sample[6]=GPIOB->IDR;					//6
-GPIOA->BSRR=GPIO_BSRR_BS7;//RD
-		Delay_mks(1);
-GPIOA->BSRR=GPIO_BSRR_BR7;//RD
-Delay_mks(1);	
-GPIOA->BSRR=GPIO_BSRR_BS7;//RD
-Delay_mks(1);			
-
-GPIOA->BSRR=GPIO_BSRR_BR7;//RD
-adc_sample[7]=GPIOB->IDR;					//7
-GPIOA->BSRR=GPIO_BSRR_BS7;//RD
-		Delay_mks(1);
-GPIOA->BSRR=GPIO_BSRR_BR7;//RD
-Delay_mks(1);	
-GPIOA->BSRR=GPIO_BSRR_BS7;//RD
-Delay_mks(1);			
+		Delay_mks(1);	
 		
-	GPIOA->BSRR=GPIO_BSRR_BS1;//PA0-CS ADC     выборка АЦП
-	GPIOA->BSRR=GPIO_BSRR_BR4;//PA2-CONVST  сброс строба запуска преобразования
+		
+GPIOA->BSRR=GPIO_BSRR_BR7;//RD
+		Delay_mks(1);	
+adc_sample[4]=GPIOB->IDR;					//0  чтение данных канала преобразования
+GPIOA->BSRR=GPIO_BSRR_BS7;//RD
+		Delay_mks(1);	
+
+
+GPIOA->BSRR=GPIO_BSRR_BR7;//RD
+		Delay_mks(1);	
+adc_sample[5]=GPIOB->IDR;					//0  чтение данных канала преобразования
+GPIOA->BSRR=GPIO_BSRR_BS7;//RD
+		Delay_mks(1);	
+	
+		
+GPIOA->BSRR=GPIO_BSRR_BR7;//RD
+		Delay_mks(1);	
+adc_sample[6]=GPIOB->IDR;					//0  чтение данных канала преобразования
+GPIOA->BSRR=GPIO_BSRR_BS7;//RD
+		Delay_mks(1);	
+	
+
+
+GPIOA->BSRR=GPIO_BSRR_BR7;//RD
+		Delay_mks(1);	
+adc_sample[7]=GPIOB->IDR;					//0  чтение данных канала преобразования
+GPIOA->BSRR=GPIO_BSRR_BS7;//RD
+		Delay_mks(1);	
+	
+
+	GPIOA->BSRR=GPIO_BSRR_BR3;//PA2-CONVST  сброс строба запуска преобразования
+		Delay_mks(1);
+	GPIOA->BSRR=GPIO_BSRR_BS0;//PA0-CS ADC     выборка АЦП
+	
 }
 

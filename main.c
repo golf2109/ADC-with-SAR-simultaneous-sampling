@@ -180,11 +180,6 @@ DWT_CONTROL|= 1; // enable the counter
 DWT_CYCCNT  = 0;
 
 __enable_irq ();
-
-//    USART_Cmd(USART1, ENABLE);
-//    USART_DMACmd(USART1, USART_DMAReq_Tx, ENABLE);
-//    DMA_Cmd(DMA1_Channel4, ENABLE);
-__enable_irq ();
 //GPIOA->ODR = 0x00C7;	//начальное состояние 
 RtcCorr();
 RtcInit();
@@ -222,7 +217,7 @@ ReadFLASH((u16 *)&Calibr, LASTPAGEFLASH, sizeof(Calibr));
 	
 	read0=Read_from_FRAM (0x0000);//проверка первичной инициализации FRAM
 							fram_out=0;
-				while(fram_out<0x40000)
+				while(fram_out<0x40000)	//обнуление FRAM
 					{					
 						Write_to_FRAM (fram_out,0x0000);							
 						fram_out++;
@@ -239,6 +234,8 @@ ReadFLASH((u16 *)&Calibr, LASTPAGEFLASH, sizeof(Calibr));
 			{
 
 __disable_irq ();
+
+
 				
 				adc_input();							//ввод данных АЦП	
 				
@@ -248,13 +245,13 @@ __disable_irq ();
 //adc |= (adc_sample[0] & 0xFF00);
 Write_to_FRAM (begin_oscill, adc_sample[0]);
 begin_oscill++;
-
-//		if(begin_oscill > 0x100)
-//		{
-//			while(1)
-//			{}
-//		}
-		
+/*				
+	if(begin_oscill > 0x100)
+	{
+			while(1)
+			{}
+	}
+*/		
 				//	adc_sample_now=ADC_1[adc_sample_number];
 				adc_sample_now=adc_sample[0];
 				potok(0);

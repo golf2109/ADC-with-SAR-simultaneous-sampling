@@ -4,11 +4,12 @@ extern void Delay_mks(__IO uint32_t nTime);
 extern	uint32_t ModAngl(int32_t Re,int32_t Im,uint32_t *ang);
 uint32_t	ang;
 extern	uint32_t	ADC_1[20];
-extern	int	adc_sample_number;	//циклический номер измерения (0...20)
-extern	int	adc_sample_now;		//текущее значение обрабатываемого канала АЦП
+
 //=====================================================================
 void	potok(int	adc_ch)
 {
+//extern int	adc_sample_number;
+//extern int	adc_sample_now;
 uint32_t	b;
 //результат преобразования АЦП для текущего канала
 
