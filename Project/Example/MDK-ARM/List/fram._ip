@@ -1,0 +1,6 @@
+..\..\..\fram.c -E -c --cpu Cortex-M3 -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I..\ -I..\..\..\Libraries\CMSIS\CM3\CoreSupport -I..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x -I..\..\..\Libraries\STM32F10x_StdPeriph_Driver\inc
+-I C:\Keil_474\ARM\RV31\INC
+-I C:\Keil_474\ARM\CMSIS\Include
+-I C:\Keil_474\ARM\Inc\ST\STM32F10x
+-DUSE_STDPERIPH_DRIVER -DSTM32F10X_MD -D__USE_C99_MATH
+-o .\list\fram.i --list_dir ".\\List\\" --list

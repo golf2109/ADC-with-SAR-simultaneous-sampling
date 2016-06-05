@@ -2,19 +2,36 @@
 #include	"time.h"
 #include <stdio.h>
 int	Ya;
-//RTC_t	timeset;//={2014,7,8,2,12,5,33,1};
-//RTC_t	timeread;
-/*
-	timeset.year=2014;
-	timeset.month=5;
-	timeset.mday=24;
-	timeset.wday=6;
-	timeset.hour=12;
-	timeset.min=8;
-	timeset.sec=33;
-	timeset.dst=0;
-*/
 
+void	oscill_tyme()
+{
+	rtc_gettime (&timeread);
+	Write_to_FRAM (50,	timeset.year);
+	Write_to_FRAM (51,	timeset.month);
+	Write_to_FRAM (52,	timeset.mday);
+	Write_to_FRAM (53,	timeset.hour);
+	Write_to_FRAM (54,	timeset.min);
+	Write_to_FRAM (55,	timeset.sec);
+	Write_to_FRAM (56,	mlsec);
+
+}
+
+void	write_begin_time (void)
+{
+	int	time_year;
+	rtc_gettime (&timeread);
+	time_year=timeread.year;
+	if(time_year<0x7DE)
+	{		
+	timeset.year=0x7DE;
+	timeset.month=9;
+	timeset.mday=26;
+	timeset.hour=0x17;
+	timeset.min=0x17;						
+	timeset.sec=0;
+	writeRTC();	
+	}	
+}
 
 void	write_sec(uint32_t	sec)
 {		
@@ -110,15 +127,14 @@ void USART1_Send_String(char* str) {
     USART1_Send(i++);
 }
 
-
-/*
+//===============================================
+//выдча в UART текущего времени
 void	timeUART	(void)
 {
 		u8	aaa;
 		u8	bbb;
 
-
-		rtc_gettime (&timeread);
+	rtc_gettime (&timeread);	//получение текущего значения часов
 		aaa=timeread.mday/0xA;
 		aaa=aaa|0x30;
 		USART1_Send(aaa);
@@ -127,7 +143,7 @@ void	timeUART	(void)
 		USART1_Send(aaa);
 		USART1_Send(0x2D);	
 
-		rtc_gettime (&timeread);
+//		rtc_gettime (&timeread);
 		aaa=timeread.month/0xA;
 		aaa=aaa|0x30;
 		USART1_Send(aaa);
@@ -136,7 +152,7 @@ void	timeUART	(void)
 		USART1_Send(aaa);
 		USART1_Send(0x2D);
 
-		rtc_gettime (&timeread);
+//		rtc_gettime (&timeread);
     aaa=timeread.year-0x7D0;
 		Ya=aaa;
 		aaa=aaa/0xA;		
@@ -150,7 +166,7 @@ void	timeUART	(void)
 		USART1_Send(0x20);	
 		USART1_Send(0x20);	
 		
-		rtc_gettime (&timeread);
+//		rtc_gettime (&timeread);
 		aaa=timeread.hour/0xA;
 		aaa=aaa|0x30;
 		USART1_Send(aaa);
@@ -159,7 +175,7 @@ void	timeUART	(void)
 		USART1_Send(aaa);
 		USART1_Send(0x3A);
 
-		rtc_gettime (&timeread);
+//		rtc_gettime (&timeread);
 		aaa=timeread.min/0xA;
 		aaa=aaa|0x30;
 		USART1_Send(aaa);
@@ -168,7 +184,7 @@ void	timeUART	(void)
 		USART1_Send(aaa);
 		USART1_Send(0x3A);
 	
-		rtc_gettime (&timeread);
+//		rtc_gettime (&timeread);
 		aaa=timeread.sec/0xA;
 		aaa=aaa|0x30;
 		USART1_Send(aaa);
@@ -178,5 +194,93 @@ void	timeUART	(void)
 		USART1_Send(0xD);
 		USART1_Send(0xA);
 }
-*/
-//процедура обработчика прерывания системного таймера (период 1мс)
+
+//===============================================
+//выдча в UART текущего времени
+void	timeUART_DMA	(void)
+{
+		u8	aaa;
+		u8	bbb;
+
+	rtc_gettime (&timeread);	//получение текущего значения часов
+		aaa=timeread.mday/0xA;
+		aaa=aaa|0x30;
+	TxBuffer[0]=aaa;
+//		USART1_Send(aaa);
+		bbb=timeread.mday%0xA;
+		aaa=bbb|0x30;
+	TxBuffer[1]=aaa;
+//		USART1_Send(aaa);
+	TxBuffer[2]=0x2D;
+//		USART1_Send(0x2D);	
+
+//		rtc_gettime (&timeread);
+		aaa=timeread.month/0xA;
+		aaa=aaa|0x30;
+	TxBuffer[3]=aaa;	
+//		USART1_Send(aaa);
+		bbb=timeread.month%0xA;
+		aaa=bbb|0x30;
+	TxBuffer[4]=aaa;		
+//		USART1_Send(aaa);
+	TxBuffer[5]=0x2D;
+//		USART1_Send(0x2D);
+
+//		rtc_gettime (&timeread);
+    aaa=timeread.year-0x7D0;
+		Ya=aaa;
+		aaa=aaa/0xA;		
+		aaa=aaa|0x30;
+	TxBuffer[6]=aaa;		
+//		USART1_Send(aaa);
+		bbb=(timeread.year-0x7D0)%0xA;
+		aaa=bbb|0x30;
+	TxBuffer[7]=aaa;		
+//		USART1_Send(aaa);
+	TxBuffer[8]=0x20;
+	TxBuffer[9]=0x20;
+	TxBuffer[10]=0x20;
+	TxBuffer[11]=0x20;	
+//		USART1_Send(0x20);	
+//		USART1_Send(0x20);	
+//		USART1_Send(0x20);	
+//		USART1_Send(0x20);	
+		
+//		rtc_gettime (&timeread);
+		aaa=timeread.hour/0xA;
+		aaa=aaa|0x30;
+	TxBuffer[12]=aaa;		
+//		USART1_Send(aaa);
+		bbb=timeread.hour%0xA;
+		aaa=bbb|0x30;
+	TxBuffer[13]=aaa;		
+//		USART1_Send(aaa);
+	TxBuffer[14]=0x3A;		
+//		USART1_Send(0x3A);
+
+//		rtc_gettime (&timeread);
+		aaa=timeread.min/0xA;
+		aaa=aaa|0x30;
+	TxBuffer[15]=aaa;			
+//		USART1_Send(aaa);
+		bbb=timeread.min%0xA;
+		aaa=bbb|0x30;
+	TxBuffer[16]=aaa;			
+//		USART1_Send(aaa);
+	TxBuffer[17]=0x3A;		
+//		USART1_Send(0x3A);
+	
+//		rtc_gettime (&timeread);
+		aaa=timeread.sec/0xA;
+		aaa=aaa|0x30;
+	TxBuffer[18]=aaa;			
+//		USART1_Send(aaa);
+		bbb=timeread.sec%0xA;
+		aaa=bbb|0x30;
+	TxBuffer[19]=aaa;			
+//		USART1_Send(aaa);
+	TxBuffer[20]=0x0D;
+//		USART1_Send(0xD);
+	TxBuffer[21]=0x0A;		
+//		USART1_Send(0xA);
+}

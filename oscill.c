@@ -1,8 +1,12 @@
 #include "stm32f10x.h"
+#include <stdio.h>
 extern	void	Write_to_FRAM (uint32_t AddrFRAM, uint16_t DataFRAM);
 extern	uint32_t	Read_from_FRAM (uint32_t AddrFRAM);
+extern	void Delay_mks(__IO uint32_t nTime);
 
-uint8_t		N_ocill;
+extern	uint32_t	fram_out;
+
+uint8_t		N_ocill;		//номер текущей осциллограммы
 uint8_t		day_oscill=0x31;
 uint8_t		month_oscill=0x12;
 uint8_t		year_oscill=0x14;
@@ -11,13 +15,13 @@ uint8_t		min_oscill=0x59;
 uint8_t		sec_oscill=0x59;
 uint8_t		big_millisec=0x39;
 uint8_t		little_millise=0x39;
-//uint32_t	begin_oscill=0x00000100;
-uint32_t	begin_oscill=0x00000000;
-uint32_t	length_oscill=0x00001000;
+
+uint32_t	begin_oscill=0x00000000;		//начало текущей осциллограммы
+uint32_t	length_oscill=0x00001000;		//длина текущей осциллограммы
 
 void	FRAM_init	(void)
 {
-	Write_to_FRAM(0x0000,0x78);//инициализация новой FRAM
+	Write_to_FRAM(0x0000,0xAA55);//инициализация новой FRAM
 	Write_to_FRAM(0x0001,0x11);//флаг необходимости перехода на новую осциллограмму
 	Write_to_FRAM(0x0002,0x31);//N_ocill   номер текущей осциллограммы
 
@@ -44,4 +48,39 @@ void	FRAM_setting	(void)
 }
 
 
+void	oscill_read(void)
+{
+	uint16_t	read0;
+	fram_out=0;
+
+
+				while(fram_out<0x3009)	
+					{					
+			read0=Read_from_FRAM (fram_out);												  																								
+			printf("%u;",read0);
+			fram_out++;	
+			read0=Read_from_FRAM (fram_out);						
+			printf("%u;",read0);
+			fram_out++;	
+			read0=Read_from_FRAM (fram_out);						
+			printf("%u;",read0);
+			fram_out++;	
+			read0=Read_from_FRAM (fram_out);						
+			printf("%u;",read0);
+			fram_out++;	
+			read0=Read_from_FRAM (fram_out);						
+			printf("%u;",read0);
+			fram_out++;	
+			read0=Read_from_FRAM (fram_out);						
+			printf("%u;",read0);
+			fram_out++;	
+			read0=Read_from_FRAM (fram_out);						
+			printf("%u;",read0);
+			fram_out++;	
+			read0=Read_from_FRAM (fram_out);			
+			printf("%u;\r\n",read0);
+			fram_out++;							
+					}	
+//		while(1){}		
+}			
 

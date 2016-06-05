@@ -4,7 +4,8 @@
 #include "stm32f10x.h"
 #include <stdlib.h>
 //extern	uint32_t	ang;
-uint32_t ModAngl(int32_t Re,int32_t Im,uint32_t *ang);
+extern int32_t*	addr_angl;
+uint32_t ModAngl(int32_t Re,int32_t Im);
 uint32_t Modul(int32_t Re,int32_t Im);
 /*
 uint32_t tangens1(void)
@@ -20,6 +21,11 @@ uint32_t tangens1(void)
 //    }
 }
 */
+
+const	int atang[30]={450000000,265650512,140362435,71250163,35763344,17899106,8951737,4476142,
+                 2238105,1119057,559528,279765,139882,69941,34971,17485,8742,4371,
+                 2186,1093,546,273,136,68,34,17,9,4,2,1};/// atan(1/2n)
+
 const u16 Tab1[64][64] = {//i=0
 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
@@ -598,123 +604,6 @@ const u16 Tab1[64][64] = {//i=0
 0x2A57, 0x2A59, 0x2B5C, 0x2B5F, 0x2C62, 0x2C64, 0x2D67, 0x2D6A,
 };
 
-uint32_t ModAngl(int32_t Re,int32_t Im,uint32_t	*ang)
-{
-	u32 r0,r1,r2,r3;
-	u32 mdl;
-  if ((Re >= 0) && (Im >= 0)) 
-		{//1Q
-			r0 = Re; r1 = Im;
-			if (r0 >= r1) 
-				{
-					while(r0 > 0x003F){r0 = r0 >> 1;r1 = r1 >> 1;}
-					r2 = Tab1[r0][r1];
-					r3 = r2 & 0x00FF;
-					r0 = Re;
-					mdl = r0 * r3 >> 8;
-					mdl += r0;
-					*ang = (r2 & 0xFF00)>>8;
-					return mdl;
-				} 
-			else 
-				{
-					while(r1 > 0x003F){r0 = r0 >> 1;r1 = r1 >> 1;}
-					r2 = Tab1[r1][r0];
-					r3 = r2 & 0x00FF;
-					r0 = Im;
-					mdl = r0 * r3 >> 8;
-					mdl += r0;
-					r3 = (r2 & 0xFF00)>>8;
-					*ang = 90 - r3;
-					return mdl;
-				}
-		}	
-	if ((Re < 0) && (Im < 0))
-		{//4Q
-			r0 = -Re;	r1 = -Im;
-		  if (r0 >= r1) 
-				{
-					while(r0 > 0x003F){r0 = r0 >> 1;r1 = r1 >> 1;}
-					r2 = Tab1[r0][r1];
-					r3 = r2 & 0x00FF;
-					r0 = -Re;
-					mdl = r0 * r3 >> 8;
-					mdl += r0;
-					r3 = (r2 & 0xFF00)>>8;
-					*ang = 360 - r3;
-					return mdl;
-				} 
-			else 
-				{
-			  while(r1 > 0x003F){r0 = r0 >> 1;r1 = r1 >> 1;}
-			  r2 = Tab1[r1][r0];
-			  r3 = r2 & 0x00FF;
-			  r0 = -Im;
-			  mdl = r0 * r3 >> 8;
-			  mdl += r0;
-			  r3 = (r2 & 0xFF00)>>8;
-			  *ang = 270 + r3;
-			  return mdl;
-				}							
-		}
-	if ((Re >= 0) && (Im < 0))	
-		{
-			r0 = Re; r1 = -Im;
-		  if (r0 >= r1) 
-				{
-					while(r0 > 0x003F){r0 = r0 >> 1;r1 = r1 >> 1;}
-					r2 = Tab1[r0][r1];
-					r3 = r2 & 0x00FF;
-					r0 = Re;
-					mdl = r0 * r3 >> 8;
-					mdl += r0;
-					r3 = (r2 & 0xFF00)>>8;
-					*ang = 180 - r3;
-					return mdl;
-				} 
-			else 
-				{
-					while(r1 > 0x003F){r0 = r0 >> 1;r1 = r1 >> 1;}
-					r2 = Tab1[r1][r0];
-					r3 = r2 & 0x00FF;
-					r0 = -Im;
-					mdl = r0 * r3 >> 8;
-					mdl += r0;
-					r3 = (r2 & 0xFF00)>>8;
-					*ang = 90 + r3;
-					return mdl;
-				}
-		}
-	if ((Re < 0) && (Im >= 0))		
-		{
-			r0 = -Re;	r1 = Im;	
-		  if (r0 >= r1) 
-				{
-					while(r0 > 0x003F){r0 = r0 >> 1;r1 = r1 >> 1;}
-					r2 = Tab1[r0][r1];
-					r3 = r2 & 0x00FF;
-					r0 = -Re;
-					mdl = r0 * r3 >> 8;
-					mdl += r0;
-					r3 = (r2 & 0xFF00)>>8;
-					*ang = 180 + r3;
-					return mdl;
-				} 
-			else 
-				{
-		      while(r1 > 0x003F){r0 = r0 >> 1;r1 = r1 >> 1;}
-					r2 = Tab1[r1][r0];
-					r3 = r2 & 0x00FF;
-					r0 = Im;
-					mdl = r0 * r3 >> 8;
-					mdl += r0;
-					r3 = (r2 & 0xFF00)>>8;
-					*ang = 270 - r3;
-					return mdl;
-				}
-		}
-return 0;
-}
 //=================================================================
 uint32_t Mod(int32_t Re,int32_t Im)
 {
@@ -852,3 +741,511 @@ uint32_t Modul(int32_t Re,int32_t Im)
 	}
 
 }
+//==========================================================
+//==========================================================
+uint32_t ModAngl(int32_t Re,int32_t Im)
+{
+	u32 r0,r1,r2,r3;
+	u32 mdl;
+  if ((Re >= 0) && (Im >= 0)) 
+		{//1Q
+			r0 = Re; r1 = Im;
+			if (r0 >= r1) 
+				{
+					while(r0 > 0x003F){r0 = r0 >> 1;r1 = r1 >> 1;}
+					r2 = Tab1[r0][r1];
+					r3 = r2 & 0x00FF;
+					r0 = Re;
+					mdl = r0 * r3 >> 8;
+					mdl += r0;
+					*addr_angl = (r2 & 0xFF00)>>8;
+					return mdl;
+				} 
+			else 
+				{
+					while(r1 > 0x003F){r0 = r0 >> 1;r1 = r1 >> 1;}
+					r2 = Tab1[r1][r0];
+					r3 = r2 & 0x00FF;
+					r0 = Im;
+					mdl = r0 * r3 >> 8;
+					mdl += r0;
+					r3 = (r2 & 0xFF00)>>8;
+					*addr_angl = 90 - r3;
+					return mdl;
+				}
+		}	
+	if ((Re < 0) && (Im < 0))
+		{//4Q
+			r0 = -Re;	r1 = -Im;
+		  if (r0 >= r1) 
+				{
+					while(r0 > 0x003F){r0 = r0 >> 1;r1 = r1 >> 1;}
+					r2 = Tab1[r0][r1];
+					r3 = r2 & 0x00FF;
+					r0 = -Re;
+					mdl = r0 * r3 >> 8;
+					mdl += r0;
+					r3 = (r2 & 0xFF00)>>8;
+					*addr_angl = r3;
+					return mdl;
+				} 
+			else 
+				{
+			  while(r1 > 0x003F){r0 = r0 >> 1;r1 = r1 >> 1;}
+			  r2 = Tab1[r1][r0];
+			  r3 = r2 & 0x00FF;
+			  r0 = -Im;
+			  mdl = r0 * r3 >> 8;
+			  mdl += r0;
+			  r3 = (r2 & 0xFF00)>>8;
+			  *addr_angl = 90 - r3;
+			  return mdl;
+				}							
+		}
+	if ((Re >= 0) && (Im < 0))	
+		{
+			r0 = Re; r1 = -Im;
+		  if (r0 >= r1) 
+				{
+					while(r0 > 0x003F){r0 = r0 >> 1;r1 = r1 >> 1;}
+					r2 = Tab1[r0][r1];
+					r3 = r2 & 0x00FF;
+					r0 = Re;
+					mdl = r0 * r3 >> 8;
+					mdl += r0;
+					r3 = (r2 & 0xFF00)>>8;
+					*addr_angl = - r3;
+					return mdl;
+				} 
+			else 
+				{
+					while(r1 > 0x003F){r0 = r0 >> 1;r1 = r1 >> 1;}
+					r2 = Tab1[r1][r0];
+					r3 = r2 & 0x00FF;
+					r0 = -Im;
+					mdl = r0 * r3 >> 8;
+					mdl += r0;
+					r3 = (r2 & 0xFF00)>>8;
+					*addr_angl = r3 - 90;
+					return mdl;
+				}
+		}
+	if ((Re < 0) && (Im >= 0))		
+		{
+			r0 = -Re;	r1 = Im;	
+		  if (r0 >= r1) 
+				{
+					while(r0 > 0x003F){r0 = r0 >> 1;r1 = r1 >> 1;}
+					r2 = Tab1[r0][r1];
+					r3 = r2 & 0x00FF;
+					r0 = -Re;
+					mdl = r0 * r3 >> 8;
+					mdl += r0;
+					r3 = (r2 & 0xFF00)>>8;
+					*addr_angl = - r3;
+					return mdl;
+				} 
+			else 
+				{
+		      while(r1 > 0x003F){r0 = r0 >> 1;r1 = r1 >> 1;}
+					r2 = Tab1[r1][r0];
+					r3 = r2 & 0x00FF;
+					r0 = Im;
+					mdl = r0 * r3 >> 8;
+					mdl += r0;
+					r3 = (r2 & 0xFF00)>>8;
+					*addr_angl = r3 - 90;
+					return mdl;
+				}
+		}
+return mdl;
+}
+//=============================================================
+//formula  y = -0.30097 + 0.61955*x - 0.001659*x*x
+//x :number from 0..100%
+//y : angle from 0..45 degree's as approximation of the atan function.
+/*
+int32_t	arctg1(int32_t	Re, int32_t Im)
+{
+int32_t	proc,arctg;
+if (Re < Im)	
+{proc=Im*100.0/Re;}
+else
+{proc=Re*100.0/Im;}	
+//proc_int=a*100/b;
+arctg=(-300970 + 619550*proc - 1659*proc*proc)/1000000;
+return	arctg;
+}
+*/
+int32_t	arctg1(int32_t	Re, int32_t Im)
+{
+int32_t	proc,arctg;
+if (Re < Im)	
+{proc=Im*100/Re;}
+else
+{proc=Re*100/Im;}	
+//proc_int=a*100/b;
+arctg=(-300970 + 619550*proc - 1659*proc*proc)/1000000;
+return	arctg;
+}
+
+//==========================================================
+//==========================================================
+/*
+
+int32_t arctg(int32_t Re,int32_t Im)
+{
+int32_t	proc,arctg;;
+//============================================================
+if ((Re >= 0) && (Im >= 0)) 
+		{//1Q
+			Re = Re; Im = Im;
+			if (Re > Im) 
+				{
+proc=Im*100.0/Re;
+arctg = (-300970 + 619550*proc - 1659*proc*proc)/1000000;
+goto	arcret;										
+				} 
+			else 
+				{
+proc=Re*100.0/Im;
+arctg = 90 - (-300970 + 619550*proc - 1659*proc*proc)/1000000;
+goto	arcret;
+				}
+		}	
+//===============================================================		
+if ((Re < 0) && (Im < 0))
+		{//4Q
+			Re = -Re;	Im = -Im;
+		  if (Re > Im) 
+				{
+proc=Im*100.0/Re;
+arctg = (-300970 + 619550*proc - 1659*proc*proc)/1000000;
+goto	arcret;	
+				} 
+			else 
+				{
+proc=Re*100.0/Im;
+arctg = 90 - (-300970 + 619550*proc - 1659*proc*proc)/1000000;
+goto	arcret;	
+				}							
+		}
+//===============================================================		
+if ((Re >= 0) && (Im < 0))	
+		{
+			Re = Re; Im = -Im;
+		  if (Re > Im) 				
+				{
+proc=Im*100.0/Re;
+arctg = - (-300970 + 619550*proc - 1659*proc*proc)/1000000;
+goto	arcret;	
+				} 
+			else 
+				{
+proc=Re*100.0/Im;
+arctg = (-300970 + 619550*proc - 1659*proc*proc)/1000000 - 90;
+goto	arcret;	
+				}
+		}
+//=============================================================				
+	if ((Re < 0) && (Im >= 0))		
+		{
+			Re = -Re;	Im = Im;	
+		  if (Re > Im) 
+				{
+proc=Im*100.0/Re;
+arctg = - (-300970 + 619550*proc - 1659*proc*proc)/1000000;
+goto	arcret;	
+				} 
+			else 
+				{
+proc=Re*100.0/Im;
+arctg = (-300970 + 619550*proc - 1659*proc*proc)/1000000 - 90;
+goto	arcret;	
+				}
+		}
+arcret:
+		return arctg;
+}
+*/
+
+
+int32_t arctg_dec(int32_t Re,int32_t Im)
+{
+return	1;
+}
+//==========================================================
+//int32_t arctg_dec(int32_t Re,int32_t Im)
+
+/*
+int32_t arctg(int32_t Re,int32_t Im)
+{
+int32_t	proc,arctg;;
+//============================================================
+if ((Re >= 0) && (Im >= 0)) 
+		{//1Q
+			Re = Re; Im = Im;
+			if (Re > Im) 
+				{
+proc=Im*100.0/Re;
+arctg = (-300970 + 619550*proc - 1659*proc*proc)/100000;
+goto	arcret;										
+				} 
+			else 
+				{
+proc=Re*100.0/Im;
+arctg = 900 - (-300970 + 619550*proc - 1659*proc*proc)/100000;
+goto	arcret;
+				}
+		}	
+//===============================================================		
+if ((Re < 0) && (Im < 0))
+		{//4Q
+			Re = -Re;	Im = -Im;
+		  if (Re > Im) 
+				{
+proc=Im*100.0/Re;
+arctg = (-300970 + 619550*proc - 1659*proc*proc)/100000;
+goto	arcret;	
+				} 
+			else 
+				{
+proc=Re*100.0/Im;
+arctg = 900 - (-300970 + 619550*proc - 1659*proc*proc)/100000;
+goto	arcret;	
+				}							
+		}
+//===============================================================		
+if ((Re >= 0) && (Im < 0))	
+		{
+			Re = Re; Im = -Im;
+		  if (Re > Im) 				
+				{
+proc=Im*100.0/Re;
+arctg = - (-300970 + 619550*proc - 1659*proc*proc)/100000;
+goto	arcret;	
+				} 
+			else 
+				{
+proc=Re*100.0/Im;
+arctg = (-300970 + 619550*proc - 1659*proc*proc)/100000 - 900;
+goto	arcret;	
+				}
+		}
+//=============================================================				
+	if ((Re < 0) && (Im >= 0))		
+		{
+			Re = -Re;	Im = Im;	
+		  if (Re > Im) 
+				{
+proc=Im*100.0/Re;
+arctg = - (-300970 + 619550*proc - 1659*proc*proc)/100000;
+goto	arcret;	
+				} 
+			else 
+				{
+proc=Re*100.0/Im;
+arctg = (-300970 + 619550*proc - 1659*proc*proc)/100000 - 900;
+goto	arcret;	
+				}
+		}
+arcret:
+		return arctg;
+}
+
+*/
+//***************************************
+
+
+
+/*
+
+int32_t arctg(int32_t Re,int32_t Im)
+{
+int32_t	proc,arctg;;
+//============================================================
+if ((Re >= 0) && (Im >= 0)) 
+		{//1Q
+			Re = Re; Im = Im;
+			if (Re > Im) 
+				{
+proc=Im*100/Re;
+arctg = (-300970 + 619550*proc - 1659*proc*proc)/100000;
+goto	arcret;										
+				} 
+			else 
+				{
+proc=Re*100/Im;
+arctg = 900 - (-300970 + 619550*proc - 1659*proc*proc)/100000;
+goto	arcret;
+				}
+		}	
+//===============================================================		
+if ((Re < 0) && (Im < 0))
+		{//4Q
+			Re = -Re;	Im = -Im;
+		  if (Re > Im) 
+				{
+proc=Im*100/Re;
+arctg = (-300970 + 619550*proc - 1659*proc*proc)/100000;
+goto	arcret;	
+				} 
+			else 
+				{
+proc=Re*100/Im;
+arctg = 900 - (-300970 + 619550*proc - 1659*proc*proc)/100000;
+goto	arcret;	
+				}							
+		}
+//===============================================================		
+if ((Re >= 0) && (Im < 0))	
+		{
+			Re = Re; Im = -Im;
+		  if (Re > Im) 				
+				{
+proc=Im*100/Re;
+arctg = - (-300970 + 619550*proc - 1659*proc*proc)/100000;
+goto	arcret;	
+				} 
+			else 
+				{
+proc=Re*100/Im;
+arctg = (-300970 + 619550*proc - 1659*proc*proc)/100000 - 900;
+goto	arcret;	
+				}
+		}
+//=============================================================				
+	if ((Re < 0) && (Im >= 0))		
+		{
+			Re = -Re;	Im = Im;	
+		  if (Re > Im) 
+				{
+proc=Im*100/Re;
+arctg = - (-300970 + 619550*proc - 1659*proc*proc)/100000;
+goto	arcret;	
+				} 
+			else 
+				{
+proc=Re*100/Im;
+arctg = (-300970 + 619550*proc - 1659*proc*proc)/100000 - 900;
+goto	arcret;	
+				}
+		}
+arcret:
+		return arctg;
+}
+
+
+*/
+
+//*******************************************************************
+//*******************************************************************
+//*******************************************************************
+
+int arctangens(int x,int y)
+{
+int i;
+int	xx,yy;
+int  aa,dx,dy,da;
+//xx=x*1000;	
+//yy=y*1000;	
+
+xx=x;	
+yy=y;
+	
+aa=0;
+for (i=0;i<8;i++)
+ {
+
+if (xx>=0) {dx=xx >>i;} else { dx=-xx >> i;dx=-dx;}
+if (yy>=0) {dy=yy >>i;} else { dy=-yy >> i;dy=-dy;}
+
+  da=atang[i];
+  if (yy<0)
+          {
+          aa=aa-da;
+          xx=xx-dy;
+          yy=yy+dx;
+          }
+ else     {
+          aa=aa+da;
+          xx=xx+dy;
+          yy=yy-dx;
+          }
+ }
+return aa/100000;
+}
+//**********************************************************
+//**********************************************************
+//**********************************************************
+
+
+int32_t arctg(int32_t Re,int32_t Im)
+//int32_t arctg_cordic(int32_t Re,int32_t Im)
+{
+int32_t	arctg;;
+//============================================================
+if ((Re >= 0) && (Im >= 0)) 
+		{//1Q
+			Re = Re; Im = Im;
+			if (Re > Im) 
+				{
+arctg = arctangens(Re,Im);
+goto	arcret;										
+				} 
+			else 
+				{				
+arctg = 9000 - arctangens(Im,Re);
+goto	arcret;
+				}
+		}	
+//===============================================================		
+if ((Re < 0) && (Im < 0))
+		{//4Q
+			Re = -Re;	Im = -Im;
+		  if (Re > Im) 
+				{
+arctg = arctangens(Re,Im);
+goto	arcret;	
+				} 
+			else 
+				{
+arctg = 9000 - arctangens(Im,Re);
+goto	arcret;	
+				}							
+		}
+//===============================================================		
+if ((Re >= 0) && (Im < 0))	
+		{
+			Re = Re; Im = -Im;
+		  if (Re > Im) 				
+				{
+arctg = - arctangens(Re,Im);
+goto	arcret;	
+				} 
+			else 
+				{
+arctg = arctangens(Im,Re) - 9000;
+goto	arcret;	
+				}
+		}
+//=============================================================				
+	if ((Re < 0) && (Im >= 0))		
+		{
+			Re = -Re;	Im = Im;	
+		  if (Re > Im) 
+				{
+arctg = - arctangens(Re,Im);
+goto	arcret;	
+				} 
+			else 
+				{
+arctg = arctangens(Im,Re) - 9000;
+goto	arcret;	
+				}
+		}
+arcret:
+		return arctg/10;
+}
+
+

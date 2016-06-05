@@ -1,0 +1,6 @@
+--cpu Cortex-M3 -g --apcs=interwork --pd "__MICROLIB SETA 1"
+-I C:\Keil_474\ARM\RV31\INC
+-I C:\Keil_474\ARM\CMSIS\Include
+-I C:\Keil_474\ARM\Inc\ST\STM32F10x
+
+-o .\obj\asm.o --depend .\obj\asm.d "..\..\..\asm.s"
